@@ -341,6 +341,27 @@ void turtleTriangleRender(double x1, double y1, double x2, double y2, double x3,
     glVertex2d(x3 * xfact, y3 * yfact);
     glEnd();
 }
+void turtleTriangle(double x1, double y1, double x2, double y2, double x3, double y3, double r, double g, double b, double a) { // adds a (blit) triangle to the pipeline (for better speed)
+    list_append(turtools.penPos, (unitype) x1, 'd');
+    list_append(turtools.penPos, (unitype) y1, 'd');
+    list_append(turtools.penPos, (unitype) x2, 'd');
+    list_append(turtools.penPos, (unitype) r, 'd');
+    list_append(turtools.penPos, (unitype) g, 'd');
+    list_append(turtools.penPos, (unitype) b, 'd');
+    list_append(turtools.penPos, (unitype) a, 'd');
+    list_append(turtools.penPos, (unitype) 66, 'h'); // blit triangle signifier
+    list_append(turtools.penPos, (unitype) y2, 'd'); // some unconventional formatting but it works
+
+    list_append(turtools.penPos, (unitype) x3, 'd');
+    list_append(turtools.penPos, (unitype) y3, 'd');
+    list_append(turtools.penPos, (unitype) 0, 'd'); // zero'd out (wasted space)
+    list_append(turtools.penPos, (unitype) r, 'd'); // duplicate colour data (wasted space)
+    list_append(turtools.penPos, (unitype) g, 'd');
+    list_append(turtools.penPos, (unitype) b, 'd');
+    list_append(turtools.penPos, (unitype) a, 'd');
+    list_append(turtools.penPos, (unitype) 66, 'h'); // blit triangle signifier
+    list_append(turtools.penPos, (unitype) 0, 'd'); // zero'd out (wasted space)
+}
 void turtleQuadRender(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4, double r, double g, double b, double a, double xfact, double yfact) { // draws a quadrilateral
     char colorChange = 0;
     if (r != turtools.currentColor[0]) {colorChange = 1;}
@@ -458,9 +479,12 @@ void turtleUpdate() { // draws the turtle's path on the screen
                 if (ren[i + 7].h == 64) { // blit circle
 
                 }
+                if (ren[i + 7].h == 66) { // blit triangle
+                    turtleTriangleRender(ren[i].d, ren[i + 1].d, ren[i + 2].d, ren[i + 8].d, ren[i + 9].d, ren[i + 10].d, ren[i + 3].d, ren[i + 4].d, ren[i + 5].d, ren[i + 6].d, xfact, yfact);
+                    i += 9;
+                }
                 if (ren[i + 7].h == 67) { // blit quad
                     turtleQuadRender(ren[i].d, ren[i + 1].d, ren[i + 2].d, ren[i + 8].d, ren[i + 9].d, ren[i + 10].d, ren[i + 11].d, ren[i + 17].d, ren[i + 3].d, ren[i + 4].d, ren[i + 5].d, ren[i + 6].d, xfact, yfact);
-                    // printf("%lf %lf %lf %lf %lf %lf %lf %lf\n", ren[i].d, ren[i + 1].d, ren[i + 2].d, ren[i + 8].d, ren[i + 9].d, ren[i + 10].d, ren[i + 11].d, ren[i + 17].d);
                     i += 9;
                 }
             }

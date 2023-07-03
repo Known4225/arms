@@ -33,10 +33,10 @@ IFileDialog: https://learn.microsoft.com/en-us/windows/win32/api/shobjidl_core/n
 #include <shobjidl.h>
 
 typedef struct {
-    char filename[263]; // maximum filepath is 260 characters (?)
+    char filename[263]; // output filename - maximum filepath is 260 characters (?)
     char openOrSave; // 0 - open, 1 - save
     int numExtensions; // number of extensions
-    char **extensions; // array of allowed extensions (7 characters long max)
+    char **extensions; // array of allowed extensions (7 characters long max (cuz *.json;))
 } win32FileDialogObject; // almost as bad of naming as the windows API
 
 win32FileDialogObject win32FileDialog;
@@ -64,11 +64,10 @@ int win32FileDialogPrompt(char openOrSave, char *filename) { // 0 - open, 1 - sa
         PWSTR pszFilePath = NULL;
         hr = CoCreateInstance(&CLSID_FileOpenDialog, NULL, CLSCTX_ALL, &IID_IFileOpenDialog, (void**) &fileDialog);
         if (SUCCEEDED(hr)) {
-            unsigned short Open[5] = {79, 112, 101, 110, 0};
-            unsigned short Save[5] = {83, 97, 118, 101, 0};
-            fileDialog -> lpVtbl -> SetOptions(fileDialog, 0); // https://learn.microsoft.com/en-us/windows/win32/api/shobjidl_core/ne-shobjidl_core-_fileopendialogoptions
+            fileDialog -> lpVtbl -> SetOptions(fileDialog, 0); // https://learn.microsoft.com/en-us/windows/win32/api/shobjidl_core/ne-shobjidl_core-_fileopendialogoptions from my tests these don't seem to do anything
+
+            /* configure autofill filename */
             if (openOrSave == 1 && strcmp(filename, "null") != 0) {
-                // printf("triggered\n");
                 int i = 0;
                 unsigned short prename[260];
                 while (filename[i] != '\0' && i < 260) {
@@ -78,17 +77,48 @@ int win32FileDialogPrompt(char openOrSave, char *filename) { // 0 - open, 1 - sa
                 prename[i] = '\0';
                 fileDialog -> lpVtbl -> SetFileName(fileDialog, prename);
             }
-            if (openOrSave == 0) {
-                fileDialog -> lpVtbl -> SetOkButtonLabel(fileDialog, (LPCWSTR) Open);
-                fileDialog -> lpVtbl -> SetTitle(fileDialog, (LPCWSTR) Open);
-            } else {
-                fileDialog -> lpVtbl -> SetOkButtonLabel(fileDialog, (LPCWSTR) Save);
-                fileDialog -> lpVtbl -> SetTitle(fileDialog, (LPCWSTR) Save);
+
+            /* load file restrictions */
+            if (win32FileDialog.numExtensions > 0) {
+                COMDLG_FILTERSPEC fileExtensions[1]; // just one filter
+                unsigned short buildfilter[7 * win32FileDialog.numExtensions + 1];
+                int j = 0;
+                for (int i = 0; i < win32FileDialog.numExtensions; i++) {
+                    
+                    buildfilter[j] = (unsigned short) '*';
+                    buildfilter[j + 1] = (unsigned short) '.';
+                    j += 2;
+                    for (int k = 0; k < strlen(win32FileDialog.extensions[i]) && k < 8; k++) {
+                        buildfilter[j] = win32FileDialog.extensions[i][k];
+                        j += 1;
+                    }
+                    buildfilter[j] = (unsigned short) ';';
+                }
+                j += 1;
+                buildfilter[j] = (unsigned short) '\0';
+                COMDLG_FILTERSPEC build;
+                build.pszName = L"Specified Types";
+                build.pszSpec = (LPCWSTR) buildfilter;
+                fileExtensions[0] = build;
+                
+                fileDialog -> lpVtbl -> SetFileTypes(fileDialog, win32FileDialog.numExtensions, fileExtensions);
             }
-            fileDialog -> lpVtbl -> Show(fileDialog, NULL);
-            hr = fileDialog -> lpVtbl -> GetResult(fileDialog, &psiResult);
+
+            /* configure text */
+            if (openOrSave == 0) { // open
+                fileDialog -> lpVtbl -> SetOkButtonLabel(fileDialog, L"Open");
+                fileDialog -> lpVtbl -> SetTitle(fileDialog, L"Open");
+                
+            } else { // save
+                fileDialog -> lpVtbl -> SetOkButtonLabel(fileDialog, L"Save");
+                fileDialog -> lpVtbl -> SetTitle(fileDialog, L"Save");
+            }
+
+            /* execute */
+            fileDialog -> lpVtbl -> Show(fileDialog, NULL); // opens window
+            hr = fileDialog -> lpVtbl -> GetResult(fileDialog, &psiResult); // succeeds if a file is selected
             if (SUCCEEDED(hr)){
-                hr = psiResult -> lpVtbl -> GetDisplayName(psiResult, SIGDN_FILESYSPATH, &pszFilePath);
+                hr = psiResult -> lpVtbl -> GetDisplayName(psiResult, SIGDN_FILESYSPATH, &pszFilePath); // extracts path name
                 if (SUCCEEDED(hr)) {
                     int i = 0;
                     while (pszFilePath[i] != '\0' && i < 260) {

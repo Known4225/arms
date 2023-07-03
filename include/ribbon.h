@@ -84,11 +84,12 @@ void ribbonDraw() {
     turtlePenSize(20);
     turtlePenShape("square");
     turtleGetMouseCoords(); // get the mouse coordinates (turtools.mouseX, turtools.mouseY)
-    turtlePenColor(200, 200, 200);
-    turtleGoto(-240, 175);
-    turtlePenDown();
-    turtleGoto(240, 175);
-    turtlePenUp();
+    // turtlePenColor(200, 200, 200);
+    // turtleGoto(-240, 175);
+    // turtlePenDown();
+    // turtleGoto(240, 175);
+    // turtlePenUp();
+    turtleQuad(-240, 170, 240, 170, 240, 180, -240, 180, 200.0 / 255, 200.0 / 255, 200.0 / 255, 0.0);
     turtlePenColor(0, 0, 0);
     double cutoff = -240 + ribbonRender.marginSize;
     ribbonRender.mainselect[0] = -1;

@@ -1,1 +1,1 @@
-gcc arms.c -L./Windows -lglfw3 -lopengl32 -lgdi32 -lglad -lole32 -luuid -O3 -o arms.exe
+gcc arms.c -L./Windows -lglfw3 -lopengl32 -lgdi32 -lglad -lole32 -luuid -O3 -o arms.exe -Wall

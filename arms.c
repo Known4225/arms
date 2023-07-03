@@ -249,7 +249,7 @@ int loadData(arms *selfp, const char *filename) { // loads weights and biases fr
     if (i != 0)
         i += 1;
     int j = i;
-    for (i; i < strlen(filename); i++) {
+    for (; i < strlen(filename); i++) {
         self.filenameAbbr[i - j] = filename[i];
     }
     self.filenameAbbr[i - j] = '\0';
@@ -299,13 +299,12 @@ int saveData(arms *selfp, const char *filename) {
     if (i != 0)
         i += 1;
     int j = i;
-    for (i; i < strlen(filename); i++) {
+    for (; i < strlen(filename); i++) {
         self.filenameAbbr[i - j] = filename[i];
     }
     self.filenameAbbr[i - j] = '\0';
 
     FILE* fp = fopen(filename, "w");
-    int checksum;
     for (int i = 0; i < self.points -> length; i++) {
         if (self.points -> type[i] == 'c') {
             fprintf(fp, "%c", 'p');
@@ -408,7 +407,8 @@ int main(int argc, char *argv[]) {
     ribbonInit(window, "include/ribbonConfig.txt");
     /* initialise win32FileDialog */
     win32FileDialogInit();
-    win32FileDialogAddExtension("txt"); // add txt to extensions
+    win32FileDialogAddExtension("txt"); // add txt to extension restrictions (this isn't the best system since you can only add extensions and not remove them, plus it's not so easy to make multiple "profiles". 
+    // I guess that's what the COMDLG_FILTERSPEC is for and it makes sense but im not dealing with garbage names and wide strings)
 
     int tps = 60; // ticks per second (locked to fps in this case)
     arms obj;
@@ -436,7 +436,6 @@ int main(int argc, char *argv[]) {
     clock_t start;
     clock_t end;
 
-    double writeSize = 35;
     double turnSpeed = 0.03;
     char keys[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     while (turtools.close == 0) { // main loop
