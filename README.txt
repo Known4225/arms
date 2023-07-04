@@ -2,7 +2,7 @@ compile (windows 64 bit):
 
 gcc arms.c -L./Windows -lglfw3 -lopengl32 -lgdi32 -lglad -lole32 -luuid -o arms.exe
 
-or just type 'make' in the terminal.
+or just type 'make' or 'make.bat' in the terminal.
 
 to run:
 
@@ -22,10 +22,11 @@ That's it, I wanted to use it to draw guns for a first person shooter, but never
 This project also serves as a tech demo for my custom ribbon implementation. It uses the windows API to save and load files through the gui interface, which I have not done before. Also just rendering the ribbon (textGL, it's all coming together) which has a custom ribbonConfig file that can be changed for different ribbon configurations. The output can then be "piped" to use in a wide variety of ways (the windows API implementation is not built in to the ribbon "class", it's a result of piping the output of the ribbon to another "class" which interfaces with the windows API because i felt like i needed an extra layer of abstraction for some reason).
 Also I updated turtle to "blit" polygons to the screen so if you want to add a triangle or quad directly you don't have to use the pen tools if you don't want to. Blit will integrate the data into the stream seamlessly (with a very wacky data encoding scheme, also I only added support for triangles and quads for now).
 
-Linux (limited support):
-gcc arms.c -L./Linux -lglfw3 -ldl -lm -lX11 -lglad -lGL -lGLU -lpthread -O3 -o arms.o
+Linux:
+gcc armsLinux.c -L./Linux -lglfw3 -ldl -lm -lX11 -lglad -lGL -lGLU -lpthread -O3 -o armsLinux.o
+
+or just type make in the console (it's funny because there's a makefile for linux and a make.bat for windows so make is cross platform lol)
 
 if it doesn't work you'll probably need to install glad and glfw and compile the libraries (glad and glfw).
 once you've obtained the libglad.a and libglfw3.a files, 
 replace the ones in the folder called "Linux" and recompile
-But also this project uses windows.h and the win32 api, so i'll just say good luck
