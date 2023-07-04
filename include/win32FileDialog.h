@@ -1,6 +1,3 @@
-#include <windows.h>
-#include <shobjidl.h>
-
 /* 
 a note on COM objects:
 COM objects are C++ classes/structs
@@ -55,7 +52,7 @@ void win32FileDialogAddExtension(char *extension) {
     // printf("%s\n", fileDialog.extensions[fileDialog.numExtensions - 1]); // strdup sanity check
 }
 
-int win32FileDialogPrompt(char openOrSave, char *filename) { // 0 - open, 1 - save
+int win32FileDialogPrompt(char openOrSave, char *filename) { // 0 - open, 1 - save, filename refers to autofill filename ("null" or empty string for no autofill)
     win32FileDialog.openOrSave = openOrSave;
     HRESULT hr = CoInitializeEx(NULL, 0); // https://learn.microsoft.com/en-us/windows/win32/api/objbase/ne-objbase-coinit
     if (SUCCEEDED(hr)) {
@@ -81,30 +78,28 @@ int win32FileDialogPrompt(char openOrSave, char *filename) { // 0 - open, 1 - sa
             /* load file restrictions */
             if (win32FileDialog.numExtensions > 0) {
                 COMDLG_FILTERSPEC fileExtensions[1]; // just one filter
-                unsigned short buildfilter[7 * win32FileDialog.numExtensions + 1];
+                unsigned short buildFilter[7 * win32FileDialog.numExtensions + 1];
                 int j = 0;
                 for (int i = 0; i < win32FileDialog.numExtensions; i++) {
-                    
-                    buildfilter[j] = (unsigned short) '*';
-                    buildfilter[j + 1] = (unsigned short) '.';
+                    buildFilter[j] = (unsigned short) '*';
+                    buildFilter[j + 1] = (unsigned short) '.';
                     j += 2;
                     for (int k = 0; k < strlen(win32FileDialog.extensions[i]) && k < 8; k++) {
-                        buildfilter[j] = win32FileDialog.extensions[i][k];
+                        buildFilter[j] = win32FileDialog.extensions[i][k];
                         j += 1;
                     }
-                    buildfilter[j] = (unsigned short) ';';
+                    buildFilter[j] = (unsigned short) ';';
+                    j += 1;
                 }
-                j += 1;
-                buildfilter[j] = (unsigned short) '\0';
+                buildFilter[j] = (unsigned short) '\0';
                 COMDLG_FILTERSPEC build;
                 build.pszName = L"Specified Types";
-                build.pszSpec = (LPCWSTR) buildfilter;
+                build.pszSpec = (LPCWSTR) buildFilter;
                 fileExtensions[0] = build;
-                
                 fileDialog -> lpVtbl -> SetFileTypes(fileDialog, win32FileDialog.numExtensions, fileExtensions);
             }
 
-            /* configure text */
+            /* configure title and button text */
             if (openOrSave == 0) { // open
                 fileDialog -> lpVtbl -> SetOkButtonLabel(fileDialog, L"Open");
                 fileDialog -> lpVtbl -> SetTitle(fileDialog, L"Open");

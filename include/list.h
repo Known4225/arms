@@ -109,7 +109,7 @@ void* list_item(list_t *list, int index) { // accesses an item of the list as a 
             ret = &list -> data[index].p;
         break;
         case 'r':
-            ret = &list -> data[index].p;
+            ret = &list -> data[index].r;
         break;
         case 'l':
             ret = &list -> data[index].l;
@@ -129,7 +129,7 @@ void* list_item(list_t *list, int index) { // accesses an item of the list as a 
 
 void list_free_lite(list_t*);
 void list_free(list_t*);
-void list_print(list_t*);
+void list_print_emb(list_t*);
 
 void list_append(list_t *list, unitype data, char type) { // append to list, must specify type
     if (list -> realLength  <= list -> length) {
@@ -159,7 +159,7 @@ unitype list_pop(list_t *list) { // pops the last item of the list off and retur
         list -> length -= 1;
         unitype ret = list -> data[list -> length];
         if (list -> type[list -> length] == 'r') {
-            list_free(list -> data[list -> length].p);
+            list_free(list -> data[list -> length].r);
         }
         if (list -> type[list -> length] == 's' || list -> type[list -> length] == 'p') {
             free(list -> data[list -> length].p);
@@ -182,7 +182,7 @@ unitype list_delete(list_t *list, int index) { // deletes the item at list[index
     index %= list -> length;
     unitype ret = list -> data[index];
     if (list -> type[index] == 'r') {
-        list_free(list -> data[index].p);
+        list_free(list -> data[index].r);
     }
     if (list -> type[index] == 's' || list -> type[index] == 'p') {
         free(list -> data[index].p);
@@ -227,7 +227,7 @@ int unitype_check_equal (unitype item1, unitype item2, char typeItem1, char type
             if (item1.p == item2.p) {return 1;} // questionable
         break;
         case 'r':
-            if (item1.p == item2.p) {return 1;} // questionable^2
+            if (item1.r == item2.r) {return 1;} // questionable^2
         break;
         case 'l':
             if (item1.l == item2.l) {return 1;}
@@ -305,7 +305,7 @@ void unitype_print(unitype item, char type) { // prints a unitype item
             printf("%p", item.p);
         break;
         case 'r':
-            list_print(item.p);
+            list_print_emb(item.r);
         break;
         case 'l':
             printf("%ld", item.l);
@@ -333,7 +333,7 @@ void list_copy(list_t *src, list_t *dest) { // copies one list to another (dupli
         dest -> type[i] = src -> type[i];
         if (src -> type[i] == 'r') {
             dest -> data[i] = (unitype) (void*) list_init();
-            list_copy((list_t*) (src -> data[i].p), (list_t*) (dest -> data[i].p));
+            list_copy(src -> data[i].r, dest -> data[i].r);
         } else {
             if (src -> type[i] == 'p') {
                 memcpy(dest -> data[i].p, src -> data[i].p, sizeof(unitype));
@@ -395,7 +395,7 @@ void list_type_print(list_t *list) { // prints the types of the list
 void list_free_lite(list_t *list) {
     for (int i = 0; i < list -> length; i++) {
         if (list -> type[i] == 'r') {
-            list_free(list -> data[i].p);
+            list_free(list -> data[i].r);
         }
         if (list -> type[i] == 's' || list -> type[i] == 'p') {
             free(list -> data[i].s);

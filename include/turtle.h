@@ -14,10 +14,10 @@ typedef struct {
     GLFWwindow* window; // the window
     char close;
     list_t *keyPressed; // global keyPressed and mousePressed list
-    int *screenbounds; // list of screen bounds (pixels)
-    int *lastscreenbounds; // list of screen bounds last frame
-    int *initscreenbounds; // screenbounds at initialisation
-    int *bounds; // list of coordinate bounds (minX, minY, maxX, maxY)
+    int screenbounds[2]; // list of screen bounds (pixels)
+    int lastscreenbounds[2]; // list of screen bounds last frame
+    int initscreenbounds[2]; // screenbounds at initialisation
+    int bounds[4]; // list of coordinate bounds (minX, minY, maxX, maxY)
     double mouseX; // mouseX and mouseY variables
     double mouseY;
     double scrollY;
@@ -111,7 +111,7 @@ char turtleMouseMiddle() { // top level boolean output call to check if the midd
 char turtleMouseMid() { // alternate duplicate of above
     return list_count(turtools.keyPressed, (unitype) "m3", 's');
 }
-void turtoolsInit(GLFWwindow* window, int minX, int minY, int maxX, int maxY) { // initializes the turtletools module
+void turtleInit(GLFWwindow* window, int minX, int minY, int maxX, int maxY) { // initializes the turtletools module
     gladLoadGL();
     glfwMakeContextCurrent(window); // various glfw things
     glEnable(GL_ALPHA);
@@ -121,12 +121,8 @@ void turtoolsInit(GLFWwindow* window, int minX, int minY, int maxX, int maxY) { 
     turtools.window = window;
     turtools.close = 0;
     turtools.keyPressed = list_init();
-    turtools.screenbounds = malloc(sizeof(int) * 2);
-    turtools.lastscreenbounds = malloc(sizeof(int) * 2);
     turtools.lastscreenbounds[0] = 0;
     turtools.lastscreenbounds[1] = 0;
-    turtools.initscreenbounds = malloc(sizeof(int) * 2);
-    turtools.bounds = malloc(sizeof(int) * 4);
     turtools.penPos = list_init();
     turtools.penPosOld = list_init();
     turtools.x = 0;
@@ -191,17 +187,21 @@ void turtlePenDown() {
         turtools.pen = 1;
         char changed = 0;
         int len = turtools.penPos -> length;
-        unitype *ren = turtools.penPos -> data;
-        if (ren[len - 9].d != turtools.penshape) {changed = 1;}
-        if (ren[len - 8].d != turtools.x) {changed = 1;}
-        if (ren[len - 7].d != turtools.y) {changed = 1;}
-        if (ren[len - 6].d != turtools.pensize) {changed = 1;}
-        if (ren[len - 5].d != turtools.penr) {changed = 1;}
-        if (ren[len - 4].d != turtools.peng) {changed = 1;}
-        if (ren[len - 3].d != turtools.penb) {changed = 1;}
-        if (ren[len - 2].d != turtools.pena) {changed = 1;}
-        if (ren[len - 1].h != turtools.penshape) {changed = 1;}
-        if (ren[len].d != turtools.circleprez) {changed = 1;}
+        if (len > 0) {
+            unitype *ren = turtools.penPos -> data;
+            if (ren[len - 9].d != turtools.penshape) {changed = 1;}
+            if (ren[len - 8].d != turtools.x) {changed = 1;}
+            if (ren[len - 7].d != turtools.y) {changed = 1;}
+            if (ren[len - 6].d != turtools.pensize) {changed = 1;}
+            if (ren[len - 5].d != turtools.penr) {changed = 1;}
+            if (ren[len - 4].d != turtools.peng) {changed = 1;}
+            if (ren[len - 3].d != turtools.penb) {changed = 1;}
+            if (ren[len - 2].d != turtools.pena) {changed = 1;}
+            if (ren[len - 1].h != turtools.penshape) {changed = 1;}
+            if (ren[len].d != turtools.circleprez) {changed = 1;}
+        } else {
+            changed = 1;
+        }
         if (changed == 1) {
             list_append(turtools.penPos, (unitype) turtools.x, 'd');
             list_append(turtools.penPos, (unitype) turtools.y, 'd');
@@ -258,17 +258,21 @@ void turtleGoto(double x, double y) { // moves the turtle to a coordinate
         if (turtools.pen == 1) {
             char changed = 0;
             int len = turtools.penPos -> length;
-            unitype *ren = turtools.penPos -> data;
-            if (ren[len - 9].d != turtools.penshape) {changed = 1;}
-            if (ren[len - 8].d != turtools.x) {changed = 1;}
-            if (ren[len - 7].d != turtools.y) {changed = 1;}
-            if (ren[len - 6].d != turtools.pensize) {changed = 1;}
-            if (ren[len - 5].d != turtools.penr) {changed = 1;}
-            if (ren[len - 4].d != turtools.peng) {changed = 1;}
-            if (ren[len - 3].d != turtools.penb) {changed = 1;}
-            if (ren[len - 2].d != turtools.pena) {changed = 1;}
-            if (ren[len - 1].h != turtools.penshape) {changed = 1;}
-            if (ren[len].d != turtools.circleprez) {changed = 1;}
+            if (len > 0) {
+                unitype *ren = turtools.penPos -> data;
+                if (ren[len - 9].d != turtools.penshape) {changed = 1;}
+                if (ren[len - 8].d != turtools.x) {changed = 1;}
+                if (ren[len - 7].d != turtools.y) {changed = 1;}
+                if (ren[len - 6].d != turtools.pensize) {changed = 1;}
+                if (ren[len - 5].d != turtools.penr) {changed = 1;}
+                if (ren[len - 4].d != turtools.peng) {changed = 1;}
+                if (ren[len - 3].d != turtools.penb) {changed = 1;}
+                if (ren[len - 2].d != turtools.pena) {changed = 1;}
+                if (ren[len - 1].h != turtools.penshape) {changed = 1;}
+                if (ren[len].d != turtools.circleprez) {changed = 1;}
+            } else {
+                changed = 1;
+            }
             if (changed == 1) {
                 list_append(turtools.penPos, (unitype) x, 'd');
                 list_append(turtools.penPos, (unitype) y, 'd');
@@ -501,4 +505,10 @@ void turtleMainLoop() { // keeps the window open
     while (turtools.close == 0) {
         turtleUpdate();
     }
+}
+
+void turtleFree() {
+    list_free(turtools.keyPressed);
+    list_free(turtools.penPos);
+    list_free(turtools.penPosOld);
 }

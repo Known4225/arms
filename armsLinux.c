@@ -2,7 +2,7 @@
 
 #include "include/ribbon.h"
 #include "include/slider.h"
-#include "include/win32FileDialog.h"
+#include "include/zenityFileDialog.h"
 #include <time.h>
 
 typedef struct { // shared state
@@ -242,7 +242,7 @@ int loadData(arms *selfp, const char *filename) { // loads weights and biases fr
         self.filename = strdup(filename);
         self.filenameAbbr = realloc(self.filenameAbbr, strlen(filename));
         int i = strlen(filename) - 1;
-        while (filename[i] != '\\' && i > 0) {
+        while (filename[i] != '/' && i > 0) {
             i--;
         }
         if (i != 0)
@@ -295,7 +295,7 @@ int saveData(arms *selfp, const char *filename) {
         self.filename = strdup(filename);
         self.filenameAbbr = realloc(self.filenameAbbr, strlen(filename));
         int i = strlen(filename) - 1;
-        while (filename[i] != '\\' && i > 0) {
+        while (filename[i] != '/' && i > 0) {
             i--;
         }
         if (i != 0)
@@ -344,24 +344,26 @@ void parseRibbonOutput(arms *selfp) {
             }
             if (ribbonRender.output[2] == 2) { // save
                 if (strcmp(self.filename, "null") == 0) {
-                    if (win32FileDialogPrompt(1, "") != -1) {
-                        saveData(&self, win32FileDialog.filename);
-                        printf("Successfully saved to: %s\n", self.filenameAbbr);
+                    if (zenityFileDialogPrompt(1, "") != -1) {
+                        if (saveData(&self, zenityFileDialog.filename) != -1) {
+                            printf("Successfully saved to: %s\n", self.filenameAbbr);
+                        }
                     }
                 } else {
-                    saveData(&self, self.filename);
-                    printf("Successfully saved to: %s\n", self.filenameAbbr);
+                    if (saveData(&self, self.filename) != -1) {
+                        printf("Successfully saved to: %s\n", self.filenameAbbr);
+                    }
                 }
             }
             if (ribbonRender.output[2] == 3) { // save as
-                if (win32FileDialogPrompt(1, self.filenameAbbr) != -1) {
-                    saveData(&self, win32FileDialog.filename);
+                if (zenityFileDialogPrompt(1, self.filenameAbbr) != -1) {
+                    saveData(&self, zenityFileDialog.filename);
                     printf("Successfully saved to: %s\n", self.filenameAbbr);
                 }
             }
             if (ribbonRender.output[2] == 4) { // load
-                if (win32FileDialogPrompt(0, "") != -1) {
-                    loadData(&self, win32FileDialog.filename);
+                if (zenityFileDialogPrompt(0, "") != -1) {
+                    loadData(&self, zenityFileDialog.filename);
                     printf("Loaded data from: %s\n", self.filenameAbbr);
                     if (self.mode == 1) {
                         pointsPlus(&self);
@@ -419,10 +421,10 @@ int main(int argc, char *argv[]) {
     textGLInit(window, "include/fontBez.tgl");
     /* initialise ribbon */
     ribbonInit(window, "include/ribbonConfig.txt");
-    /* initialise win32FileDialog */
-    win32FileDialogInit();
-    win32FileDialogAddExtension("txt"); // add txt to extension restrictions (this isn't the best system since you can only add extensions and not remove them, plus it's not so easy to make multiple "profiles". 
-    // I guess that's what the COMDLG_FILTERSPEC is for and it makes sense but im not dealing with garbage names and wide strings)
+    /* initialise zenityFileDialog */
+    zenityFileDialogInit();
+    zenityFileDialogAddExtension("txt"); // add txt to extension restrictions (this isn't the best system since you can only add extensions and not remove them, plus it's not so easy to make multiple "profiles".
+    // zenityFileDialogAddExtension("json");
 
     int tps = 60; // ticks per second (locked to fps in this case)
     arms obj;
