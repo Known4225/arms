@@ -13,7 +13,7 @@ Whenever we call one of these methods, we have to pass in the object (which impl
 Actually, we pass in a pointer to the object, obviously i'm quite familiar with this
 
 One more nuance is that whenever we pass a COM object in a function as an argument, it must always be &object
-This implicitly happens in OOP languages (references in C++), but in C it must be explicitly stated that it's a reference
+This is because in order to call methods we use object -> lpVtbl -> method, I mean we could use object.lpVtbl -> method but it's easier and allocates less stack memory to just use pointers
 
 So whenever you take C++ COM object sample code, just follow this process:
 change all the methods to -> lpVtbl -> methods
