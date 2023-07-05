@@ -32,9 +32,13 @@ void zenityFileDialogInit() {
 }
 
 void zenityFileDialogAddExtension(char *extension) {
-    zenityFileDialog.numExtensions += 1;
-    zenityFileDialog.extensions = realloc(zenityFileDialog.extensions, zenityFileDialog.numExtensions * 8);
-    zenityFileDialog.extensions[zenityFileDialog.numExtensions - 1] = strdup(extension);
+    if (strlen(extension) <= 4) {
+        zenityFileDialog.numExtensions += 1;
+        zenityFileDialog.extensions = realloc(zenityFileDialog.extensions, zenityFileDialog.numExtensions * 8);
+        zenityFileDialog.extensions[zenityFileDialog.numExtensions - 1] = strdup(extension);
+    } else {
+        printf("extension name: %s too long\n", extension);
+    }
 }
 
 int zenityFileDialogPrompt(char openOrSave, char *prename) { // 0 - open, 1 - save, prename refers to autofill filename ("null" or empty string for no autofill)
@@ -92,5 +96,6 @@ int zenityFileDialogPrompt(char openOrSave, char *prename) { // 0 - open, 1 - sa
         }
     }
     // printf("Success, filename: %s\n", zenityFileDialog.filename);
+    pclose(filenameStream);
     return 0;
 }

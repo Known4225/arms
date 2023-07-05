@@ -46,10 +46,13 @@ void win32FileDialogInit() {
 }
 
 void win32FileDialogAddExtension(char *extension) {
-    win32FileDialog.numExtensions += 1;
-    win32FileDialog.extensions = realloc(win32FileDialog.extensions, win32FileDialog.numExtensions * 8);
-    win32FileDialog.extensions[win32FileDialog.numExtensions - 1] = strdup(extension);
-    // printf("%s\n", fileDialog.extensions[fileDialog.numExtensions - 1]); // strdup sanity check
+    if (strlen(extension) <= 4) {
+        win32FileDialog.numExtensions += 1;
+        win32FileDialog.extensions = realloc(win32FileDialog.extensions, win32FileDialog.numExtensions * 8);
+        win32FileDialog.extensions[win32FileDialog.numExtensions - 1] = strdup(extension);
+    } else {
+        printf("extension name: %s too long\n", extension);
+    }
 }
 
 int win32FileDialogPrompt(char openOrSave, char *filename) { // 0 - open, 1 - save, filename refers to autofill filename ("null" or empty string for no autofill)
