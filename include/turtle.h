@@ -139,7 +139,7 @@ void turtleInit(GLFWwindow* window, int minX, int minY, int maxX, int maxY) { //
         turtools.currentColor[i] = 0.0;
     }
     turtools.currentColor[3] = 1.0;
-    turtleSetWorldCoordinates(-240, -180, 240, 180);
+    turtleSetWorldCoordinates(minX, minY, maxX, maxY);
     glfwSetKeyCallback(window, keySense); // initiate mouse and keyboard detection
     glfwSetMouseButtonCallback(window, mouseSense);
     glfwSetScrollCallback(window, scrollSense);
@@ -151,13 +151,13 @@ void turtleGetMouseCoords() { // gets the mouse coordinates
     turtools.mouseY = turtools.mouseAbsY;
     turtools.mouseScaX = turtools.mouseAbsX;
     turtools.mouseScaY = turtools.mouseAbsY;
-    turtools.mouseX -= (turtools.initscreenbounds[0] >> 1) - ((turtools.bounds[2] + turtools.bounds[0]) >> 1);
+    turtools.mouseX -= (turtools.initscreenbounds[0] / 2) - ((turtools.bounds[2] + turtools.bounds[0]) / 2);
     turtools.mouseX *= ((double) (turtools.bounds[2] - turtools.bounds[0]) / (double) turtools.initscreenbounds[0]);
-    turtools.mouseY -= (turtools.initscreenbounds[1] >> 1) - ((turtools.bounds[3] + turtools.bounds[1]) >> 1) + (turtools.screenbounds[1] - turtools.initscreenbounds[1]);
+    turtools.mouseY -= (turtools.initscreenbounds[1] / 2) - ((turtools.bounds[3] + turtools.bounds[1]) / 2) + (turtools.screenbounds[1] - turtools.initscreenbounds[1]);
     turtools.mouseY *= ((double) (turtools.bounds[1] - turtools.bounds[3]) / (double) turtools.initscreenbounds[1]);
-    turtools.mouseScaX -= (turtools.screenbounds[0] >> 1) - ((turtools.bounds[2] + turtools.bounds[0]) >> 1);
+    turtools.mouseScaX -= (turtools.screenbounds[0] / 2) - ((turtools.bounds[2] + turtools.bounds[0]) / 2);
     turtools.mouseScaX *= ((double) (turtools.bounds[2] - turtools.bounds[0]) / (double) turtools.screenbounds[0]);
-    turtools.mouseScaY -= (turtools.screenbounds[1] >> 1) - ((turtools.bounds[3] + turtools.bounds[1]) >> 1);
+    turtools.mouseScaY -= (turtools.screenbounds[1] / 2) - ((turtools.bounds[3] + turtools.bounds[1]) / 2);
     turtools.mouseScaY *= ((double) (turtools.bounds[1] - turtools.bounds[3]) / (double) turtools.screenbounds[1]);
 }
 void turtleBgColor(double r, double g, double b) { // set the background color
@@ -438,8 +438,8 @@ void turtleUpdate() { // draws the turtle's path on the screen
     turtools.lastscreenbounds[1] = turtools.screenbounds[1];
     list_copy(turtools.penPos, turtools.penPosOld); // unideal
     if (changed == 1) { // only redraw the screen if there have been any changes from last frame
-        double xfact = (turtools.bounds[2] - turtools.bounds[0]) >> 1;
-        double yfact = (turtools.bounds[3] - turtools.bounds[1]) >> 1;
+        double xfact = (turtools.bounds[2] - turtools.bounds[0]) / 2;
+        double yfact = (turtools.bounds[3] - turtools.bounds[1]) / 2;
         xfact = 1 / xfact;
         yfact = 1 / yfact;
         double lastSize = -1;

@@ -404,17 +404,17 @@ int main(int argc, char *argv[]) {
     glfwWindowHint(GLFW_SAMPLES, 4); // MSAA (Anti-Aliasing) with 4 samples (must be done before window is created (?))
 
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(960, 720, "arms", NULL, NULL);
+    window = glfwCreateWindow(1280, 720, "arms", NULL, NULL);
     if (!window) {
         glfwTerminate();
         return -1;
     }
     glfwMakeContextCurrent(window);
-    glfwSetWindowSizeLimits(window, GLFW_DONT_CARE, GLFW_DONT_CARE, 960, 720);
+    glfwSetWindowSizeLimits(window, 128, 72, 1280, 720);
     gladLoadGL();
 
     /* initialize turtle/turtools */
-    turtleInit(window, -240, -180, 240, 180);
+    turtleInit(window, -320, -180, 320, 180);
     /* initialise textGL */
     textGLInit(window, "include/fontBez.tgl");
     /* initialise ribbon */

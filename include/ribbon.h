@@ -6,6 +6,7 @@ typedef struct {
     char mainselect[4]; // 0 - select, 1 - mouseHover, 2 - selected, 3 - free
     char subselect[4]; // like mainselect but for the sublists (only one sublist supported)
     char output[3]; // 0 - toggle, 1 - mainselect, 2 - subselect
+    int bounds[4]; // list of coordinate bounds (minX, minY, maxX, maxY)
     double ribbonSize;
     list_t *options;
     list_t* lengths;
@@ -24,6 +25,10 @@ int ribbonInit(GLFWwindow* window, const char *filename) { // read from config f
     ribbonRender.output[0] = 0;
     ribbonRender.output[1] = -1;
     ribbonRender.output[2] = -1;
+    ribbonRender.bounds[0] = turtools.bounds[0];
+    ribbonRender.bounds[1] = turtools.bounds[1];
+    ribbonRender.bounds[2] = turtools.bounds[2];
+    ribbonRender.bounds[3] = turtools.bounds[3];
     ribbonRender.ribbonSize = 1; // 1 is default, below 1 is smaller, above 1 is larger (scales as a multiplier, 0.1 is 100x smaller than 10)
     ribbonRender.options = list_init();
     ribbonRender.lengths = list_init();
@@ -89,9 +94,9 @@ void ribbonDraw() {
     // turtlePenDown();
     // turtleGoto(240, 175);
     // turtlePenUp();
-    turtleQuad(-240, 170, 240, 170, 240, 180, -240, 180, 200.0 / 255, 200.0 / 255, 200.0 / 255, 0.0);
+    turtleQuad(ribbonRender.bounds[0], ribbonRender.bounds[3] - 10, ribbonRender.bounds[2], ribbonRender.bounds[3] - 10, ribbonRender.bounds[2], ribbonRender.bounds[3], ribbonRender.bounds[0], ribbonRender.bounds[3], 200.0 / 255, 200.0 / 255, 200.0 / 255, 0.0);
     turtlePenColor(0, 0, 0);
-    double cutoff = -240 + ribbonRender.marginSize;
+    double cutoff = ribbonRender.bounds[0] + ribbonRender.marginSize;
     ribbonRender.mainselect[0] = -1;
     ribbonRender.subselect[0] = -1;
     for (int i = 0; i < ribbonRender.options -> length; i++) {
@@ -99,18 +104,18 @@ void ribbonDraw() {
         if (i == ribbonRender.mainselect[2]) {
             double xLeft = prevCutoff - ribbonRender.marginSize / 2.0;
             double xRight = prevCutoff + ribbonRender.lengths -> data[i * 2 + 1].d + ribbonRender.marginSize / 2.0;
-            double yDown = 170 - 15 * (ribbonRender.options -> data[i].r -> length - 1) - ribbonRender.marginSize / 2.0;
-            turtleQuad(xLeft, 170, xRight, 170, xRight, yDown, xLeft, yDown, 140.0 / 255, 140.0 / 255, 140.0 / 255, 0.0);
+            double yDown = ribbonRender.bounds[3] - 10 - 15 * (ribbonRender.options -> data[i].r -> length - 1) - ribbonRender.marginSize / 2.0;
+            turtleQuad(xLeft, ribbonRender.bounds[3] - 10, xRight, ribbonRender.bounds[3] - 10, xRight, yDown, xLeft, yDown, 140.0 / 255, 140.0 / 255, 140.0 / 255, 0.0);
             for (int j = 1; j < ribbonRender.options -> data[i].r -> length; j++) {
-                if (turtools.mouseY > 170 - 15 * j - ribbonRender.marginSize / 4.0 && turtools.mouseY < 170 && turtools.mouseX > xLeft && turtools.mouseX < xRight && ribbonRender.subselect[0] == -1) {
-                    turtleQuad(xLeft, 170 - 15 * (j - 1) - ribbonRender.marginSize / 4.0, xRight, 170 - 15 * (j - 1) - ribbonRender.marginSize / 4.0, xRight, 170 - 15 * j - ribbonRender.marginSize / 3.0, xLeft, 170 - 15 * j - ribbonRender.marginSize / 3.0, 100.0 / 255, 100.0 / 255, 100.0 / 255, 0.0);
+                if (turtools.mouseY > ribbonRender.bounds[3] - 10 - 15 * j - ribbonRender.marginSize / 4.0 && turtools.mouseY < ribbonRender.bounds[3] - 10 && turtools.mouseX > xLeft && turtools.mouseX < xRight && ribbonRender.subselect[0] == -1) {
+                    turtleQuad(xLeft, ribbonRender.bounds[3] - 10 - 15 * (j - 1) - ribbonRender.marginSize / 4.0, xRight, ribbonRender.bounds[3] - 10 - 15 * (j - 1) - ribbonRender.marginSize / 4.0, xRight, ribbonRender.bounds[3] - 10 - 15 * j - ribbonRender.marginSize / 3.0, xLeft, ribbonRender.bounds[3] - 10 - 15 * j - ribbonRender.marginSize / 3.0, 100.0 / 255, 100.0 / 255, 100.0 / 255, 0.0);
                     ribbonRender.subselect[0] = j;
                 }
                 textGLWriteString(ribbonRender.options -> data[i].r -> data[j].s, prevCutoff, 174.5 - j * 15, 7 * ribbonRender.ribbonSize, 0);
             }
         }
         cutoff += ribbonRender.lengths -> data[i * 2].d + ribbonRender.marginSize;
-        if (turtools.mouseY > 170 && turtools.mouseY < 180 && turtools.mouseX > -240 + ribbonRender.marginSize / 2.0 && turtools.mouseX < cutoff - ribbonRender.marginSize / 2.0 && ribbonRender.mainselect[0] == -1) { // -217, -195, -164
+        if (turtools.mouseY > ribbonRender.bounds[3] - 10 && turtools.mouseY < ribbonRender.bounds[3] && turtools.mouseX > ribbonRender.bounds[0] + ribbonRender.marginSize / 2.0 && turtools.mouseX < cutoff - ribbonRender.marginSize / 2.0 && ribbonRender.mainselect[0] == -1) { // -217, -195, -164
             // turtlePenSize(17);
             // turtlePenColor(140, 140, 140);
             // turtleGoto(prevCutoff, 175);
